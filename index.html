@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>LapFox Radio</title>
+	<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/cyborg/bootstrap.min.css" rel="stylesheet" integrity="sha384-D9XILkoivXN+bcvB2kSOowkIvIcBbNdoDQvfBNsxYAIieZbx8/SI4NeUvrRGCpDi" crossorigin="anonymous">
+	<style>
+	body {
+	    background-color: black;
+	}
+	</style>
+
+</head>
+<body>
+    <div class="container">
+    	<div class="row">
+    	<div class="col-md-12">
+        <img src="lapfoxradio.png" class="center-block img-responsive" alt="LapFox Radio">
+        </div>
+        </div>
+        <div class="row">
+        <div class="col-md-6">
+        <div id="station">
+        			<h6>Now Playing:</h6>
+                    <h4 class="media-heading nowplaying-title">Song Title</h4>
+                    <span class="nowplaying-artist">Song Artist</span>
+        </div>
+        <br>
+               <!-- <audio controls preload="none">
+  <source src="https://radio.lapfoxradio.com/radio/8000/stream-ogg-320.ogg" type="audio/ogg">
+  <source src="https://radio.lapfoxradio.com/radio/8000/stream-mp3-320.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio> -->
+
+<!-- BEGINS: AUTO-GENERATED MUSES RADIO PLAYER CODE -->
+<script type="text/javascript" src="https://hosted.muses.org/mrp.js"></script>
+<script type="text/javascript">
+MRP.insert({
+'url':'https://radio.lapfoxradio.com/radio/8000/stream-ogg-128.ogg?1496168926',
+'codec':'ogg',
+'volume':100,
+'autoplay':false,
+'jsevents':true,
+'buffering':0,
+'title':'LapFox Radio',
+'wmode':'transparent',
+'skin':'substream',
+'width':180,
+'height':30
+});
+</script>
+<!-- ENDS: AUTO-GENERATED MUSES RADIO PLAYER CODE -->
+<br>
+<div id="station2">
+<p>Currently <span class="nowplaying-listeners">0</span> listeners</p>
+<h6>Recently Played:</h6>
+<ol id="song-history">
+</ol>
+</div>
+</div>
+<div class="col-md-6">
+<div>
+<h6>Raw Streams:</h6>
+<ul>
+<li><a href="https://radio.lapfoxradio.com/radio/8000/stream-ogg-320.ogg">320kbps OGG Vorbis</a></li>
+<li><a href="https://radio.lapfoxradio.com/radio/8000/stream-ogg-128.ogg">128kbps OGG Vorbis</a></li>
+<li><a href="https://radio.lapfoxradio.com/radio/8000/stream-ogg-320.ogg">320kbps MP3</a></li>
+</ul>
+</div>
+<div>
+<h6>Playlists:</h6>
+<ul>
+<li><a href="lapfox_radio.pls">PLS file</a></li>
+<li><a href="lapfox_radio.m3u">M3U file</a></li>
+</ul>
+</div>
+<br>
+<p>Maintained by <a href="https://floogulinc.com/">floogulinc</a></p>
+<p>Music &copy; <a href="http://www.lapfoxtrax.com/" target="_blank">LapFox Trax</a></p>
+
+</div>
+</div>
+
+    </div><!-- /.container -->
+
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha384-xBuQ/xzmlsLoJpyjoggmTEz8OWUFM0/RC5BsqQBDX2v5cMvDHcMakNTNrHIW2I5f" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+<script type="text/javascript">
+
+var nowplayingurl = "https://radio.lapfoxradio.com/api/nowplaying/lapfox_radio";
+
+function nowPlaying() {
+    $.getJSON(nowplayingurl, {}, function(data) {
+        var row = data.result;
+        //var station_row = $('#station_'+row.station.id);
+        station_row = $('#station')
+        station_row2 = $('#station2')
+
+        station_row.find('.nowplaying-title').text(row.current_song.title);
+        station_row.find('.nowplaying-artist').text(row.current_song.artist);
+        station_row2.find('.nowplaying-listeners').text(row.listeners.total);
+
+        $('#song-history').empty();
+        $.each(row.song_history, function(i, history_row) {
+            var li = $('<li>').append('<b>'+history_row.song.title+'</b><br>'+history_row.song.artist);
+            $('#song-history').append(li);
+        });
+
+        setTimeout('nowPlaying()', 30*1000);
+    });
+}
+
+function runOnceInfo() {
+    $.getJSON(nowplayingurl, {}, function(data) {
+        var row = data.result;
+        //var station_row = $('#station_'+row.station.id);
+        station_row = $('#station')
+
+        station_row.find('.nowplaying-title').text(row.current_song.title);
+        station_row.find('.nowplaying-artist').text(row.current_song.artist);
+        station_row.find('.nowplaying-listeners').text(row.listeners.total);
+
+        $('#song-history').empty();
+        $.each(row.song_history, function(i, history_row) {
+            var li = $('<li>').append('<b>'+history_row.song.title+'</b><br>'+history_row.song.artist);
+            $('#song-history').append(li);
+        });
+
+        setTimeout('nowPlaying()', 30*1000);
+    });
+}
+
+$(function() {
+    nowPlaying();
+});
+
+</script>
+</body>
+</html>
