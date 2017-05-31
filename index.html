@@ -106,7 +106,7 @@ function nowPlaying() {
         station_row.find('.nowplaying-artist').text(row.current_song.artist);
         station_row2.find('.nowplaying-listeners').text(row.listeners.total);
 
-        document.title = row.current_song.artist + " - " + row.current_song.title + " - LapFox Radio";
+        document.title = row.current_song.title + " - " + row.current_song.artist + " - LapFox Radio"
 
         $('#song-history').empty();
         $.each(row.song_history, function(i, history_row) {
