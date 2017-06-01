@@ -5,6 +5,18 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="theme-color" content="#000000">
 	<title>LapFox Radio</title>
+
+	<link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+	<link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+	<link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="manifest" href="/manifest.json">
+	<meta name="apple-mobile-web-app-title" content="LapFox Radio">
+	<meta name="application-name" content="LapFox Radio">
+
 	<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/cyborg/bootstrap.min.css" rel="stylesheet" integrity="sha384-D9XILkoivXN+bcvB2kSOowkIvIcBbNdoDQvfBNsxYAIieZbx8/SI4NeUvrRGCpDi" crossorigin="anonymous">
 	<style>
 	body {
@@ -44,6 +56,7 @@ MRP.insert({
 'autoplay':false,
 'jsevents':true,
 'buffering':0,
+'forceHTML5':true,
 'title':'LapFox Radio',
 'wmode':'transparent',
 'skin':'substream',
@@ -108,25 +121,12 @@ function nowPlaying() {
 
         document.title = row.current_song.title + " - " + row.current_song.artist + " - LapFox Radio"
 
-        $('#song-history').empty();
-        $.each(row.song_history, function(i, history_row) {
-            var li = $('<li>').append('<b>'+history_row.song.title+'</b><br>'+history_row.song.artist);
-            $('#song-history').append(li);
-        });
-
-        setTimeout('nowPlaying()', 30*1000);
-    });
-}
-
-function runOnceInfo() {
-    $.getJSON(nowplayingurl, {}, function(data) {
-        var row = data.result;
-        //var station_row = $('#station_'+row.station.id);
-        station_row = $('#station')
-
-        station_row.find('.nowplaying-title').text(row.current_song.title);
-        station_row.find('.nowplaying-artist').text(row.current_song.artist);
-        station_row.find('.nowplaying-listeners').text(row.listeners.total);
+        if ('mediaSession' in navigator) {
+        	navigator.mediaSession.metadata = new MediaMetadata({
+		    title: row.current_song.title,
+		    artist: row.current_song.artist,
+		  });
+        }
 
         $('#song-history').empty();
         $.each(row.song_history, function(i, history_row) {
@@ -141,6 +141,18 @@ function runOnceInfo() {
 $(function() {
     nowPlaying();
 });
+
+	if ('serviceWorker' in navigator) {
+	  window.addEventListener('load', function() {
+	    navigator.serviceWorker.register('/sw.js').then(function(registration) {
+	      // Registration was successful
+	      console.log('ServiceWorker registration successful with scope: ', registration.scope);
+	    }, function(err) {
+	      // registration failed :(
+	      console.log('ServiceWorker registration failed: ', err);
+	    });
+	  });
+	}
 
 </script>
 </body>
