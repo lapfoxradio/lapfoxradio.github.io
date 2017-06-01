@@ -50,6 +50,6 @@
     ],
     "theme_color": "#000000",
     "background_color": "#ffffff",
-    "start_url": "http://192.168.1.4:4400/",
+    "start_url": "https://lapfoxradio.com/",
     "display": "standalone"
 }
