@@ -157,13 +157,14 @@ function nowPlaying() {
             $('#song-history').append(li);
         });
 
-        setTimeout('nowPlaying()', 30*1000);
+        //setTimeout('nowPlaying()', 30*1000);
     });
 }
 
 $(function() {
-    nowPlaying();
-});
+
+	nowPlaying();
+    window.setInterval(nowPlaying, 30*1000);
 
 	if ('serviceWorker' in navigator) {
 	  window.addEventListener('load', function() {
@@ -176,6 +177,8 @@ $(function() {
 	    });
 	  });
 	}
+
+});
 
 </script>
 
