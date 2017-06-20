@@ -59,6 +59,9 @@
         			<h6>Now Playing:</h6>
                     <h4 class="media-heading nowplaying-title">Song Title</h4>
                     <span class="nowplaying-artist">Song Artist</span>
+                    <div class="nowplaying-progress" style="display: none;">
+
+                    </div>
         </div>
         <br>
                <!-- <audio controls preload="none">
@@ -90,6 +93,9 @@ MRP.insert({
 <br>
 <div id="station2">
 <p>Currently <span class="nowplaying-listeners">0</span> listeners</p>
+<h6>Playing Next:</h6>
+                    <b class="nowplaying-next-title">Song Title</b><br>
+                    <span class="nowplaying-next-artist">Song Artist</span>
 <h6>Recently Played:</h6>
 <ol id="song-history">
 </ol>
@@ -131,23 +137,55 @@ MRP.insert({
 
 var nowplayingurl = "https://radio.lapfoxradio.com/api/nowplaying/lapfox_radio";
 
+var oldsongid = "";
+
+var isPlaying = false;
+
 function nowPlaying() {
-    $.getJSON(nowplayingurl, {}, function(data) {
-        var row = data.result;
+    $.getJSON(nowplayingurl, {}, function(row) {
         //var station_row = $('#station_'+row.station.id);
         station_row = $('#station')
         station_row2 = $('#station2')
 
-        station_row.find('.nowplaying-title').text(row.current_song.title);
-        station_row.find('.nowplaying-artist').text(row.current_song.artist);
+        station_row.find('.nowplaying-title').text(row.now_playing.song.title);
+        station_row.find('.nowplaying-artist').text(row.now_playing.song.artist);
         station_row2.find('.nowplaying-listeners').text(row.listeners.total);
 
-        document.title = row.current_song.title + " - " + row.current_song.artist + " - LapFox Radio"
+        station_row2.find('.nowplaying-next-title').html(row.playing_next.song.title);
+        station_row2.find('.nowplaying-next-artist').text(row.playing_next.song.artist);
+
+        if(isPlaying && oldsongid != row.now_playing.song.id) {
+        	oldsongid = row.now_playing.song.id;
+        	if (("Notification" in window)) {
+			    if(Notification.permission === "granted") {
+  				var n = new Notification(row.now_playing.song.title,{
+				      body: row.now_playing.song.artist,
+				      icon: "/apple-touch-icon-180x180.png"
+				  });
+  				setTimeout(n.close.bind(n), 5000);
+			    } else if (Notification.permission !== 'denied') {
+			    Notification.requestPermission(function (permission) {
+			      // If the user accepts, let's create a notification
+			      if (permission === "granted") {
+			        var n = new Notification(row.now_playing.song.title,{
+				      body: row.now_playing.song.artist,
+				      icon: "/apple-touch-icon-180x180.png"
+				  });
+  					setTimeout(n.close.bind(n), 5000);
+			      }
+			    });
+			  }
+			}
+        }
+
+
+
+        document.title = row.now_playing.song.title + " - " + row.now_playing.song.artist + " - LapFox Radio"
 
         if ('mediaSession' in navigator) {
         	navigator.mediaSession.metadata = new MediaMetadata({
-		    title: row.current_song.title,
-		    artist: row.current_song.artist,
+		    title: row.now_playing.song.title,
+		    artist: row.now_playing.song.artist,
 		  });
         }
 
@@ -157,14 +195,79 @@ function nowPlaying() {
             $('#song-history').append(li);
         });
 
+        if (row.now_playing.duration) {
+            var time_played = Math.floor(Date.now() / 1000) - row.now_playing.played_at;
+            var time_total = row.now_playing.duration;
+
+            if (time_played > time_total) {
+                time_played = time_total;
+            }
+
+            var time_display = formatTime(time_played) + ' / ' + formatTime(time_total);
+
+            station_row.find('.nowplaying-progress')
+                .data('time-played', time_played)
+                .data('time-total', time_total)
+                .text(time_display)
+                .show();
+        } else {
+            station_row.find('.nowplaying-progress').hide();
+        }
+
         //setTimeout('nowPlaying()', 30*1000);
     });
+}
+
+function musesCallback(event,value){
+    if(event == "play" && isPlaying == false) {
+    	isPlaying = true;
+    	nowPlaying();
+    } else if(event == "stop") {
+    	isPlaying = false;
+    }
+}
+
+function iterateTimer() {
+    $('.nowplaying-progress:visible').each(function () {
+        var time_played = $(this).data('time-played') + 1;
+        var time_total = $(this).data('time-total');
+
+        if (time_played > time_total) {
+            time_played = time_total;
+            nowPlaying();
+        }
+
+        var time_display = formatTime(time_played) + ' / ' + formatTime(time_total);
+
+        $(this).data('time-played', time_played)
+            .text(time_display)
+    });
+}
+
+function formatTime(time) {
+    var sec_num = parseInt(time, 10);
+
+    var hours = Math.floor(sec_num / 3600);
+    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+    if (hours < 10) {
+        hours = "0" + hours;
+    }
+    if (minutes < 10) {
+        minutes = "0" + minutes;
+    }
+    if (seconds < 10) {
+        seconds = "0" + seconds;
+    }
+    return (hours !== "00" ? hours + ':' : "") + minutes + ':' + seconds;
 }
 
 $(function() {
 
 	nowPlaying();
     window.setInterval(nowPlaying, 30*1000);
+    window.setInterval(iterateTimer, 1000);
 
 	if ('serviceWorker' in navigator) {
 	  window.addEventListener('load', function() {
