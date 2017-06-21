@@ -141,8 +141,27 @@ var oldsongid = "";
 
 var isPlaying = false;
 
+var canCall = true;
+
+
+function nowPlayingLimited() {
+	console.log("nowPlayingLimited() called")
+	if (!canCall) 
+            return;
+
+    nowPlaying();
+
+    canCall = false;
+        setTimeout(function(){
+            canCall = true;
+        }, 5000);
+
+}
+
 function nowPlaying() {
+
     $.getJSON(nowplayingurl, {}, function(row) {
+    	console.log("nowPlaying ajax called")
         //var station_row = $('#station_'+row.station.id);
         station_row = $('#station')
         station_row2 = $('#station2')
@@ -160,19 +179,27 @@ function nowPlaying() {
 			    if(Notification.permission === "granted") {
   				var n = new Notification(row.now_playing.song.title,{
 				      body: row.now_playing.song.artist,
-				      icon: "/apple-touch-icon-180x180.png"
+				      icon: "/apple-touch-icon-180x180.png",
+				      silent: true
 				  });
   				setTimeout(n.close.bind(n), 5000);
-			    } else if (Notification.permission !== 'denied') {
-			    Notification.requestPermission(function (permission) {
-			      // If the user accepts, let's create a notification
-			      if (permission === "granted") {
-			        var n = new Notification(row.now_playing.song.title,{
-				      body: row.now_playing.song.artist,
-				      icon: "/apple-touch-icon-180x180.png"
-				  });
-  					setTimeout(n.close.bind(n), 5000);
-			      }
+  				n.onclick = function () {
+				  window.focus();
+				}
+		    } else if (Notification.permission !== 'denied') {
+		    Notification.requestPermission(function (permission) {
+		      // If the user accepts, let's create a notification
+		      if (permission === "granted") {
+		        var n = new Notification(row.now_playing.song.title,{
+			      body: row.now_playing.song.artist,
+			      icon: "/apple-touch-icon-180x180.png",
+			      silent: true
+			  });
+				setTimeout(n.close.bind(n), 5000);
+				n.onclick = function () {
+				  window.focus();
+				}
+		      }
 			    });
 			  }
 			}
@@ -219,6 +246,7 @@ function nowPlaying() {
 }
 
 function musesCallback(event,value){
+	console.log("muses event: " + event + ": " + value);
     if(event == "play" && isPlaying == false) {
     	isPlaying = true;
     	nowPlaying();
@@ -234,7 +262,7 @@ function iterateTimer() {
 
         if (time_played > time_total) {
             time_played = time_total;
-            nowPlaying();
+            nowPlayingLimited();
         }
 
         var time_display = formatTime(time_played) + ' / ' + formatTime(time_total);
