@@ -200,6 +200,7 @@ function nowPlaying() {
 				  window.focus();
 				}
 		      }
+		      ga('send', 'event', 'notification_request_permission', permission);
 			    });
 			  }
 			}
@@ -249,9 +250,11 @@ function musesCallback(event,value){
 	console.log("muses event: " + event + ": " + value);
     if(event == "play" && isPlaying == false) {
     	isPlaying = true;
+    	ga('send', 'event', 'radio_player', 'play');
     	nowPlaying();
     } else if(event == "stop") {
     	isPlaying = false;
+    	ga('send', 'event', 'radio_player', 'stop');
     }
 }
 
@@ -308,6 +311,23 @@ $(function() {
 	    });
 	  });
 	}
+
+	if (("Notification" in window)) {
+			    if(Notification.permission === "granted") {
+			    	ga('send', 'event', 'notification_permission', 'already_granted');
+			    }
+			}
+
+	window.addEventListener('beforeinstallprompt', function(e) {
+	  // beforeinstallprompt Event fired
+
+	  // e.userChoice will return a Promise. 
+	  // For more details read: https://developers.google.com/web/fundamentals/getting-started/primers/promises
+	  e.userChoice.then(function(choiceResult) {
+	    console.log(choiceResult.outcome);
+	    ga('send', 'event', 'home_screen_install', choiceResult.outcome);
+	  });
+});
 
 });
 
