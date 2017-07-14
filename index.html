@@ -91,7 +91,7 @@ MRP.insert({
 
 <!-- ENDS: AUTO-GENERATED MUSES RADIO PLAYER CODE -->
 <br>
-<div id="station2">
+<div id="station2">		
 <p>Currently <span class="nowplaying-listeners">0</span> listeners</p>
 <h6>Playing Next:</h6>
                     <b class="nowplaying-next-title">Song Title</b><br>
@@ -224,7 +224,7 @@ function nowPlaying() {
         });
 
         if (row.now_playing.duration) {
-            var time_played = Math.floor(Date.now() / 1000) - row.now_playing.played_at;
+            var time_played = row.now_playing.elapsed;
             var time_total = row.now_playing.duration;
 
             if (time_played > time_total) {
