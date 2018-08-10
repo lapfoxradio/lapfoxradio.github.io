@@ -108,8 +108,9 @@ MRP.insert({
 <div id="station2">	
 <p>Currently <span class="nowplaying-listeners">0</span> listeners</p>
 <h6>Playing Next:</h6>
-                    <b class="nowplaying-next-title">Song Title</b><br>
-                    <span class="nowplaying-next-artist">Song Artist</span>
+<img id="nowplaying-next-art" src="/lapfox-radio-icon-black.png" height="40px" style="float: left; margin-right: 8px">
+<b class="nowplaying-next-title">Song Title</b><br>
+<span class="nowplaying-next-artist">Song Artist</span>
 <h6>Recently Played:</h6>
 <ol id="song-history">
 </ol>
@@ -187,6 +188,7 @@ function nowPlaying() {
 
         station_row2.find('.nowplaying-next-title').html(row.playing_next.song.title);
         station_row2.find('.nowplaying-next-artist').text(row.playing_next.song.artist);
+        $('#nowplaying-next-art').attr("src", row.playing_next.song.art);
 
         if(isPlaying && oldsongid != row.now_playing.song.id && !('mediaSession' in navigator)) {
         	oldsongid = row.now_playing.song.id;
