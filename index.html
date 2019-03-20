@@ -174,10 +174,19 @@ function nowPlayingLimited() {
 }
 
 function nowPlaying() {
+     console.log("nowPlaying called");
+     $.ajax({
+        cache: false,
+        dataType: "json",
+        url: nowplayingurl,
+        success: nowPlayingFunc,
+        fail: function() {
+            console.log("nowPlaying ajax fail");
+        }
+    });
+}
 
-    $.getJSON(nowplayingurl, {}, function(row) {
-    	console.log("nowPlaying ajax called")
-        //var station_row = $('#station_'+row.station.id);
+function nowPlayingFunc(row) {
         station_row = $('#station')
         station_row2 = $('#station2')
 
@@ -191,36 +200,36 @@ function nowPlaying() {
         $('#nowplaying-next-art').attr("src", row.playing_next.song.art);
 
         if(isPlaying && oldsongid != row.now_playing.song.id && !('mediaSession' in navigator)) {
-        	oldsongid = row.now_playing.song.id;
-        	if (("Notification" in window)) {
-			    if(Notification.permission === "granted") {
-  				var n = new Notification(row.now_playing.song.title,{
-				      body: row.now_playing.song.artist,
-				      icon: row.now_playing.song.art,
-				      silent: true
-				  });
-  				setTimeout(n.close.bind(n), 5000);
-  				n.onclick = function () {
-				  window.focus();
-				}
-		    } else if (Notification.permission !== 'denied') {
-		    Notification.requestPermission(function (permission) {
-		      // If the user accepts, let's create a notification
-		      if (permission === "granted") {
-		        var n = new Notification(row.now_playing.song.title,{
-			      body: row.now_playing.song.artist,
-			      icon: row.now_playing.song.art,
-			      silent: true
-			  });
-				setTimeout(n.close.bind(n), 5000);
-				n.onclick = function () {
-				  window.focus();
-				}
-		      }
-		      ga('send', 'event', 'notification_request_permission', permission);
-			    });
-			  }
-			}
+            oldsongid = row.now_playing.song.id;
+            if (("Notification" in window)) {
+                if(Notification.permission === "granted") {
+                var n = new Notification(row.now_playing.song.title,{
+                      body: row.now_playing.song.artist,
+                      icon: row.now_playing.song.art,
+                      silent: true
+                  });
+                setTimeout(n.close.bind(n), 5000);
+                n.onclick = function () {
+                  window.focus();
+                }
+            } else if (Notification.permission !== 'denied') {
+            Notification.requestPermission(function (permission) {
+              // If the user accepts, let's create a notification
+              if (permission === "granted") {
+                var n = new Notification(row.now_playing.song.title,{
+                  body: row.now_playing.song.artist,
+                  icon: row.now_playing.song.art,
+                  silent: true
+              });
+                setTimeout(n.close.bind(n), 5000);
+                n.onclick = function () {
+                  window.focus();
+                }
+              }
+              ga('send', 'event', 'notification_request_permission', permission);
+                });
+              }
+            }
         }
 
 
@@ -228,12 +237,12 @@ function nowPlaying() {
         document.title = row.now_playing.song.title + " - " + row.now_playing.song.artist + " - LapFox Radio"
 
         if ('mediaSession' in navigator) {
-        	navigator.mediaSession.metadata = new MediaMetadata({
-		    title: row.now_playing.song.title,
-		    artist: row.now_playing.song.artist,
+            navigator.mediaSession.metadata = new MediaMetadata({
+            title: row.now_playing.song.title,
+            artist: row.now_playing.song.artist,
             album: row.now_playing.song.album,
             artwork: [{src: row.now_playing.song.art}]
-		  });
+          });
         }
 
         $('#song-history').empty();
@@ -260,9 +269,6 @@ function nowPlaying() {
         } else {
             station_row.find('.nowplaying-progress').hide();
         }
-
-        //setTimeout('nowPlaying()', 30*1000);
-    });
 }
 
 function musesCallback(event,value){
