@@ -158,7 +158,6 @@ var isPlaying = false;
 
 var canCall = true;
 
-
 function nowPlayingLimited() {
 	console.log("nowPlayingLimited() called")
 	if (!canCall) 
@@ -199,7 +198,7 @@ function nowPlayingFunc(row) {
         station_row2.find('.nowplaying-next-artist').text(row.playing_next.song.artist);
         $('#nowplaying-next-art').attr("src", row.playing_next.song.art);
 
-        if(isPlaying && oldsongid != row.now_playing.song.id && !('mediaSession' in navigator)) {
+        if(isPlaying && oldsongid != row.now_playing.song.id) {
             oldsongid = row.now_playing.song.id;
             if (("Notification" in window)) {
                 if(Notification.permission === "granted") {
